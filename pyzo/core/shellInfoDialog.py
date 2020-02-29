@@ -83,9 +83,19 @@ class ShellInfo_exe(QtWidgets.QComboBox):
         # Set current text
         self.setEditText(value)
 
+    def setAutodetected(self) :
+        value = "Autodetected - " + self.currentText()
+        self.clear()
+        self.addItem(value)
+        self.setEditText(value)
+        self.setEditable(False)
+        self.setEnabled(False)
+
     def getTheText(self):
         # return self.currentText().split('(')[0].rstrip()
         value = self.currentText()
+        if value.startswith("Autodetected - ") :
+            value = value[len("Autodetected - "):]
         if value.endswith("]") and "[" in value:
             value = value.rsplit("[", 1)[0]
         return value.strip()
@@ -545,6 +555,8 @@ class ShellInfoTab(QtWidgets.QScrollArea):
                 widget = self._shellInfoWidgets.get(key, None)
                 if widget is not None:
                     widget.setTheText(info[key])
+            if getattr(info, "wasAutodetected", False) :
+                self._shellInfoWidgets["exe"].setAutodetected()
 
         except Exception as why:
             print("Error setting info in shell config:", why)
